@@ -45,25 +45,25 @@ class LDRCluster:
     
     def readLDRs(self):
         self.multiplexer.setInOut(2)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         ll = a0.read_u16()
         print("ll--", ll)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         self.multiplexer.setInOut(1)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         lr = a0.read_u16()
         print("lr--", lr)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         self.multiplexer.setInOut(0)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         ul = a0.read_u16()
         print("ul--", ul)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         self.multiplexer.setInOut(3)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         ur = a0.read_u16()
         print("ur--", ur)
-        utime.sleep(0.01)
+        utime.sleep(0.002)
         return ll, lr, ul, ur
     
     #TODO: Implement calibration
@@ -119,12 +119,16 @@ class Servo:
         self.pwm.duty(77)
     
     def moveUp(self, diff):
-        if self.pwm.duty() < 105:
+        if self.pwm.duty() < 110:
             self.pwm.duty(self.pwm.duty() + diff)
+            utime.sleep(0.02)
+            print(self.pwm.duty())
 
     def moveDown(self, diff):
-        if self.pwm.duty() > 50:
+        if self.pwm.duty() > 65:
             self.pwm.duty(self.pwm.duty() - diff)
+            utime.sleep(0.02)
+            print(self.pwm.duty())
 
 
 class Solartracker:
@@ -142,9 +146,9 @@ class Solartracker:
         elif (mean(ul, ur) / mean(ll, lr)) >  self.sensitivityX: #move up
             self.servo.moveUp(1)
         if (mean(ll, ul) / mean(lr, ur)) > self.sensitivityZ: #move left
-            self.stepper.step(0, 0.005, 32)
+            self.stepper.step(0, 0.002, 64)
         elif (mean(lr, ur) / mean(ll, ul)) > self.sensitivityZ: #move right
-            self.stepper.step(1, 0.005, 32)
+            self.stepper.step(1, 0.002, 64)
 
 
 
@@ -153,8 +157,8 @@ multiplexer = Multiplexer(13, 15, 2)
 ldrCluster = LDRCluster(multiplexer, 2, 1, 0, 3)
 stepper = Stepper(4, 0, 14, 12)
 servo = Servo(5)
-solartracker = Solartracker(ldrCluster, stepper, servo, 1.1, 1.1)
+solartracker = Solartracker(ldrCluster, stepper, servo, 1.08, 1.12)
 
 while True:
     solartracker.track()
-    utime.sleep(0.01)
+    utime.sleep(0.005)
